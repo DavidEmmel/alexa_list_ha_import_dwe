@@ -1,5 +1,5 @@
 blueprint:
-  name: Import Alexa shoppinglist
+  name: Import Alexa shoppinglist DWE
   description: Import Alexa shopping to your Home Assistant shopping list.
   domain: automation
   author: N1c093
@@ -27,13 +27,23 @@ action:
     response_variable: list
     entity_id: !input shopping_list
     action: todo.get_items
-  - if:
-      - condition: template
-        value_template: >-
-          {{trigger.json.name not in list[shopping_list]["items"] |
-          map(attribute="summary") | list }}
-    then:
-      - entity_id: !input shopping_list
-        data:
-          item: "{{ trigger.json.name }}"
-        action: todo.add_item
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: >-
+            {{trigger.json.name not in list[shopping_list]["items"] | map(attribute="summary") | list }}
+        sequence:
+          - entity_id: !input shopping_list
+          data:
+            item: "{{ trigger.json.name }}"
+          action: todo.add_item      
+    
+#   - if:
+#   - condition: template
+#     value_template: >-
+#           {{trigger.json.name not in list[shopping_list]["items"] | map(attribute="summary") | list }}
+#     then:
+#       - entity_id: !input shopping_list
+#        data:
+#           item: "{{ trigger.json.name }}"
+#         action: todo.add_item
