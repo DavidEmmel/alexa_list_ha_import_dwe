@@ -37,8 +37,7 @@ action:
           - entity_id: !input shopping_list
           data:
             item: "{{ trigger.json.name }}"
-          action: todo.add_item      
-    
+          action: todo.add_item
 #   - if:
 #   - condition: template
 #     value_template: >-
