@@ -27,6 +27,7 @@ action:
     response_variable: list
     entity_id: !input shopping_list
     action: todo.get_items
+    actions:
     - choose:
       - conditions:
         - condition: template
