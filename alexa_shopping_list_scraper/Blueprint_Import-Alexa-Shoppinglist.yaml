@@ -35,9 +35,9 @@ action:
             {{trigger.json.name not in list[shopping_list]["items"] | map(attribute="summary") | list }}
         sequence:
           - entity_id: !input shopping_list
-          data:
-            item: "{{ trigger.json.name }}"
-          action: todo.add_item
+            data:
+              item: "{{ trigger.json.name }}"
+            action: todo.add_item
 #   - if:
 #   - condition: template
 #     value_template: >-
