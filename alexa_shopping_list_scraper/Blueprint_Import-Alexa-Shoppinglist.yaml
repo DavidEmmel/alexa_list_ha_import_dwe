@@ -1,8 +1,8 @@
 blueprint:
-  name: Import Alexa shoppinglist DWE
+  name: Import Alexa shoppinglist DWE11
   description: Import Alexa shopping to your Home Assistant shopping list.
   domain: automation
-  author: N1c093
+  author: DWE11
   input:
     webhook_trigger:
       name: Webhook Trigger
@@ -16,34 +16,51 @@ blueprint:
         entity:
           filter:
             domain: todo
-mode: parallel
-max: 100
 variables:
   shopping_list: !input shopping_list
-trigger: !input webhook_trigger
-
-action:
-  - data: {}
+  trigger: !input webhook_trigger
+trigger_variables:
+  webhook_id_variable: !input webhook_trigger
+triggers:
+  - trigger: webhook
+    webhook_id: "import-alexa-shoppinglist-yfI_vEehWDOZ127o9GANwjF6"
+    allowed_methods:
+      - POST
+      - PUT
+    local_only: true
+actions:
+  - action: todo.get_items
+    metadata: {}
+    data: {}
     response_variable: list
-    entity_id: !input shopping_list
-    action: todo.get_items
-    actions:
-    - choose:
+    target:
+      entity_id: !input shopping_list
+  - choose:
       - conditions:
-        - condition: template
-          value_template: >-
-            {{trigger.json.name not in list[shopping_list]["items"] | map(attribute="summary") | list }}
+          - condition: template
+            value_template: >-
+              {{ trigger.json.name not in
+              list[shopping_list]["items"] |
+              map(attribute="summary") | list }}
         sequence:
-          - entity_id: !input shopping_list
+          - action: todo.add_item
+            target:
+              entity_id: !input shopping_list
+            metadata: {}
             data:
               item: "{{ trigger.json.name }}"
-            action: todo.add_item
-#   - if:
-#   - condition: template
-#     value_template: >-
-#           {{trigger.json.name not in list[shopping_list]["items"] | map(attribute="summary") | list }}
-#     then:
-#       - entity_id: !input shopping_list
-#        data:
-#           item: "{{ trigger.json.name }}"
-#         action: todo.add_item
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ trigger.json.name in list[shopping_list]["items"] |
+              map(attribute="summary") | list }}
+        sequence:
+          - action: todo.update_item
+            target:
+              entity_id: !input shopping_list
+            metadata: {}
+            data:
+              item: "{{ trigger.json.name }}"
+              status: needs_action
+mode: single
+max: 100
