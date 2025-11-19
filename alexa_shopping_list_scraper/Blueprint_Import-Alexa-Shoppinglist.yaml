@@ -62,5 +62,5 @@ actions:
             data:
               item: "{{ trigger.json.name }}"
               status: needs_action
-mode: single
+mode: parallel
 max: 100
